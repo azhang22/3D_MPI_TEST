@@ -2533,14 +2533,16 @@ void air::SetQMove(int N)
 					}
 				}
 			}
-			mpi_comm3d.Sendrecv(uws, NN, MPI::DOUBLE, mpi_nleft, 0,
-				uer, NN, MPI::DOUBLE, mpi_nright, 0, status);
-			mpi_comm3d.Sendrecv(vws, NN, MPI::DOUBLE, mpi_nleft, 1,
-				ver, NN, MPI::DOUBLE, mpi_nright, 1, status);
-			mpi_comm3d.Sendrecv(wws, NN, MPI::DOUBLE, mpi_nleft, 2,
-				wer, NN, MPI::DOUBLE, mpi_nright, 2, status);
-			mpi_comm3d.Sendrecv(pws, NN, MPI::DOUBLE, mpi_nleft, 3,
-				per, NN, MPI::DOUBLE, mpi_nright, 3, status);
+			MPI_Sendrecv(uws, NN, MPI_DOUBLE, mpi_nleft, 0,
+				uer, NN, MPI_DOUBLE, mpi_nright, 0,mpi_comm3d, &status);
+			MPI_Sendrecv(uws, NN, MPI_DOUBLE, mpi_nleft, 0,
+				uer, NN, MPI_DOUBLE, mpi_nright, 0, mpi_comm3d, &status);
+			MPI_Sendrecv(vws, NN, MPI_DOUBLE, mpi_nleft, 1,
+				ver, NN, MPI_DOUBLE, mpi_nright, 1, mpi_comm3d, &status);
+			MPI_Sendrecv(wws, NN, MPI_DOUBLE, mpi_nleft, 2,
+				wer, NN, MPI_DOUBLE, mpi_nright, 2, mpi_comm3d, &status);
+			MPI_Sendrecv(pws, NN, MPI_DOUBLE, mpi_nleft, 3,
+				per, NN, MPI_DOUBLE, mpi_nright, 3, mpi_comm3d, &status);
 
 			NN = 0;
 			for (i = 0; i < mpi_IMAX1; i++){
@@ -2584,14 +2586,14 @@ void air::SetQMove(int N)
 					}
 				}
 			}
-			mpi_comm3d.Sendrecv(uws, NN, MPI::DOUBLE, mpi_nleft, 4,
-				uer, NN, MPI::DOUBLE, mpi_nright, 4, status);
-			mpi_comm3d.Sendrecv(vws, NN, MPI::DOUBLE, mpi_nleft, 5,
-				ver, NN, MPI::DOUBLE, mpi_nright, 5, status);
-			mpi_comm3d.Sendrecv(wws, NN, MPI::DOUBLE, mpi_nleft, 6,
-				wer, NN, MPI::DOUBLE, mpi_nright, 6, status);
-			mpi_comm3d.Sendrecv(pws, NN, MPI::DOUBLE, mpi_nleft, 7,
-				per, NN, MPI::DOUBLE, mpi_nright, 7, status);
+			MPI_Sendrecv(uws, NN, MPI_DOUBLE, mpi_nleft, 4,
+				uer, NN, MPI_DOUBLE, mpi_nright, 4, mpi_comm3d, &status);
+			MPI_Sendrecv(vws, NN, MPI_DOUBLE, mpi_nleft, 5,
+				ver, NN, MPI_DOUBLE, mpi_nright, 5, mpi_comm3d, &status);
+			MPI_Sendrecv(wws, NN, MPI_DOUBLE, mpi_nleft, 6,
+				wer, NN, MPI_DOUBLE, mpi_nright, 6, mpi_comm3d, &status);
+			MPI_Sendrecv(pws, NN, MPI_DOUBLE, mpi_nleft, 7,
+				per, NN, MPI_DOUBLE, mpi_nright, 7, mpi_comm3d, &status);
 
 			NN = 0;
 			for (i = mpi_IMAX - mpi_IMAX2; i < mpi_IMAX; i++){
@@ -2636,14 +2638,14 @@ void air::SetQMove(int N)
 				}
 			}
 
-			mpi_comm3d.Sendrecv(uws, NN, MPI::DOUBLE, mpi_nleft, 0,
-				uer, NN, MPI::DOUBLE, mpi_nright, 0, status);
-			mpi_comm3d.Sendrecv(vws, NN, MPI::DOUBLE, mpi_nleft, 1,
-				ver, NN, MPI::DOUBLE, mpi_nright, 1, status);
-			mpi_comm3d.Sendrecv(wws, NN, MPI::DOUBLE, mpi_nleft, 2,
-				wer, NN, MPI::DOUBLE, mpi_nright, 2, status);
-			mpi_comm3d.Sendrecv(pws, NN, MPI::DOUBLE, mpi_nleft, 3,
-				per, NN, MPI::DOUBLE, mpi_nright, 3, status);
+			MPI_Sendrecv(uws, NN, MPI_DOUBLE, mpi_nleft, 0,
+				uer, NN, MPI_DOUBLE, mpi_nright, 0, mpi_comm3d, &status);
+			MPI_Sendrecv(vws, NN, MPI_DOUBLE, mpi_nleft, 1,
+				ver, NN, MPI_DOUBLE, mpi_nright, 1, mpi_comm3d, &status);
+			MPI_Sendrecv(wws, NN, MPI_DOUBLE, mpi_nleft, 2,
+				wer, NN, MPI_DOUBLE, mpi_nright, 2, mpi_comm3d, &status);
+			MPI_Sendrecv(pws, NN, MPI_DOUBLE, mpi_nleft, 3,
+				per, NN, MPI_DOUBLE, mpi_nright, 3, mpi_comm3d, &status);
 
 			NN = 0;
 			for (k = 0; k < mpi_KMAX1; k++){
@@ -2687,14 +2689,14 @@ void air::SetQMove(int N)
 					}
 				}
 			}
-			mpi_comm3d.Sendrecv(uws, NN, MPI::DOUBLE, mpi_nleft, 4,
-				uer, NN, MPI::DOUBLE, mpi_nright, 4, status);
-			mpi_comm3d.Sendrecv(vws, NN, MPI::DOUBLE, mpi_nleft, 5,
-				ver, NN, MPI::DOUBLE, mpi_nright, 5, status);
-			mpi_comm3d.Sendrecv(wws, NN, MPI::DOUBLE, mpi_nleft, 6,
-				wer, NN, MPI::DOUBLE, mpi_nright, 6, status);
-			mpi_comm3d.Sendrecv(pws, NN, MPI::DOUBLE, mpi_nleft, 7,
-				per, NN, MPI::DOUBLE, mpi_nright, 7, status);
+			MPI_Sendrecv(uws, NN, MPI_DOUBLE, mpi_nleft, 4,
+				uer, NN, MPI_DOUBLE, mpi_nright, 4, mpi_comm3d, &status);
+			MPI_Sendrecv(vws, NN, MPI_DOUBLE, mpi_nleft, 5,
+				ver, NN, MPI_DOUBLE, mpi_nright, 5, mpi_comm3d, &status);
+			MPI_Sendrecv(wws, NN, MPI_DOUBLE, mpi_nleft, 6,
+				wer, NN, MPI_DOUBLE, mpi_nright, 6, mpi_comm3d, &status);
+			MPI_Sendrecv(pws, NN, MPI_DOUBLE, mpi_nleft, 7,
+				per, NN, MPI_DOUBLE, mpi_nright, 7, mpi_comm3d, &status);
 
 			NN = 0;
 			for (k = mpi_KMAX - mpi_KMAX2; k < mpi_KMAX; k++){

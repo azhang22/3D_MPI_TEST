@@ -110,7 +110,8 @@ struct MPI_info{
 	int mpi_xarea;
 	int mpi_yarea;
 	int mpi_zarea;
-	MPI::Cartcomm mpi_comm3d;
+	//MPI::Cartcomm mpi_comm3d;
+	MPI_Comm mpi_comm3d;
 	int mpi_nleft;
 	int mpi_nright;
 	int mpi_nbottom;
@@ -132,7 +133,7 @@ double Coef_velo(double geo_var1,double geo_var2,double geo_var3,
 						double geo_xt,double geo_yt,double geo_zt);
 void mpe_decomp1d(int n,int numprocs,int myid,int &s,int &e);
 int qu_min(int a,int b);
-#endif
+
 
 /***************************************************************************************/
 /*
@@ -180,4 +181,4 @@ is competely integer without any approximation;
 */
 /***************************************************************************************/
 
-
+#endif

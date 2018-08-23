@@ -1,7 +1,7 @@
 	0.135955598689175//gaussian_width//0.263276884773416
-	441 11 11 0 0.750 //Moving domain:MF_JMAX; Moving distance: MF_J;Moving ratio
+	201 11 11 0 0.750 //Moving domain:MF_JMAX; Moving distance: MF_J;Moving ratio
 	2 //scheme:1.FB_v_p 2.FB_p_v 3.FB_vp 4.LeapTrap 5.RK4 6.RK2 7.ABM ;
-	2 1 2 1 2 2 //NorthBC SouthBC EastBC WestBC FrontBC BackBC and
+	2 1 1 2 2 2 //NorthBC SouthBC EastBC WestBC FrontBC BackBC and
 			//B.C type: 1.rigid 2.absorbing layer 3.porous media 4.radiation boundary condition;  
 	1600 100 19 300 //time_domain;out_difft(output each this value);FFT_m(2^FFT_m=N);frequency;
 
@@ -11,12 +11,12 @@
 	2 1000 4500 //PMLy: alpha,resisitivity and time_step;
 	2 1000 //PMLz: alpha,resisitivity;
 	1.790799820223793e+00 8.769089596793096e-01 5.137565000000000e+04 //PorePara.Cs;PorePara.porosity;PorePara.resistivity;
-	0.0 0.0 0.325 0.0 1.75 0.23 //airpore: source.x;source.y;source.z;receiver.x;receiver.y;receiver.z;
+	0.0 -0.325 0.0 0.000 -0.23 1.75 //airpore: source.x;source.y;source.z;receiver.x;receiver.y;receiver.z;
 
 	4e-6 //AirStep.diff_t;
 	0.005 0.005 0.005 //AirStep.diff_x;AirStep.diff_y;AirStep.diff_z;
 
-	4 5 4 //mpi_xarea,mpi_yarea,mpi_zarea
+	2 2 2 //mpi_xarea,mpi_yarea,mpi_zarea
 
 	output.data;
 	0 5000 ct003

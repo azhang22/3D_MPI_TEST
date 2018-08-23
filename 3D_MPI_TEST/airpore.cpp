@@ -10,6 +10,7 @@
 #include "air.h"
 #include "porous.h"
 #include "time.h"
+#include <direct.h> // for windows
 
 
 //****************************airpore code*******************************//
@@ -410,9 +411,9 @@ void airpore::get_output(int mpi_rank1,int mpi_size1)
 	for(i=0;i<NO_Rec_y;i++){
 		int ii,jj,kk;
 		struct Position rec;
-		if (i == 0){ rec.x = receiver.x; rec.y = 1.75; rec.z = 0.23; }			//
-		else if (i == 1){ rec.x = receiver.x; rec.y = 1.75; rec.z = 0.46; }
-		else if (i == 2){ rec.x = receiver.x; rec.y = 1.75; rec.z = 0.8; }
+		if (i == 0) { rec.x = receiver.x; rec.y = -0.23; rec.z = 1.75; }			//
+		else if (i == 1){ rec.x = receiver.x; rec.y = -0.46; rec.z = 0.46; }
+		else if (i == 2){ rec.x = receiver.x; rec.y = -0.1; rec.z = 0.1; }
 		else if (i == 3){ rec.x = receiver.x; rec.y = 1.75; rec.z = 0.23; }
 		else if (i == 4){ rec.x = receiver.x; rec.y = 1.75; rec.z = 0.46; }
 		else if (i == 5){ rec.x = receiver.x; rec.y = 0.6; rec.z = 0.01; }
@@ -438,7 +439,8 @@ void airpore::get_output(int mpi_rank1,int mpi_size1)
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (mpi_rank == 0) cout << "Receiver position all set!" << endl;
-	mkdir("./solution", 0777);
+	//mkdir("./solution", 0777);
+	_mkdir("solution");// for windows
 	//if it exists, remove it
 	if (restart == 0){
 		index_pressure = 0;
@@ -447,22 +449,23 @@ void airpore::get_output(int mpi_rank1,int mpi_size1)
 				char tempnameid[10] = "";
 				char ptyfilename[100] = ("./solution/pty");
 
-				if (i < 10 && i >= 0) strcat(ptyfilename, "000");
-				else if (i >= 10 && i < 100) strcat(ptyfilename, "00");
-				else if (i >= 100 && i < 1000) strcat(ptyfilename, "0");
-				sprintf(tempnameid, "%d", i);
-				strcat(ptyfilename, tempnameid);// pty001
-				strcat(ptyfilename, ".dat");	// pty001.dat
+				if (i < 10 && i >= 0) strcat_s(ptyfilename, "000");
+				else if (i >= 10 && i < 100) strcat_s(ptyfilename, "00");
+				else if (i >= 100 && i < 1000) strcat_s(ptyfilename, "0");
+				sprintf_s(tempnameid, "%d", i);
+				strcat_s(ptyfilename, tempnameid);// pty001
+				strcat_s(ptyfilename, ".dat");	// pty001.dat
 
 				ofstream ofout(ptyfilename, ios::out | ios::binary);
 				if (ofout.is_open()) remove(ptyfilename);
 				ofout.close();
 			}
-			mkdir("/panfs/pfs.local/work/zczheng/j391z772/Results/3D/20180822_3D_ANSI_study", 0777);
-			mkdir("/panfs/pfs.local/work/zczheng/j391z772/Results/3D/20180822_3D_ANSI_study/Rigid_ground", 0777);
-			mkdir("/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study", 0777);
-			mkdir("/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground", 0777);
-			mkdir("/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground/myfile", 0777);
+			_mkdir("myfile");
+			//mkdir("/panfs/pfs.local/work/zczheng/j391z772/Results/3D/20180822_3D_ANSI_study", 0777);
+			//mkdir("/panfs/pfs.local/work/zczheng/j391z772/Results/3D/20180822_3D_ANSI_study/Rigid_ground", 0777);
+			//mkdir("/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study", 0777);
+			//mkdir("/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground", 0777);
+			//mkdir("/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground/myfile", 0777);
 		}
 	}
 
@@ -481,20 +484,20 @@ void airpore::get_output(int mpi_rank1,int mpi_size1)
 		//restart = 0;
 	}
 	
-	ofstream outfile[NO_Rec_y];
+	ofstream outfile[5];
 
 	if (mpi_rank == 0){
 		for (i = 0; i < NO_Rec_y; i++){
 			char tempnameid1[10] = "";
 			char pty_infile[100] = ("./solution/pty");
 
-			if (i < 10 && i >= 0) strcat(pty_infile, "000");
-			else if (i >= 10 && i < 100) strcat(pty_infile, "00");
-			else if (i >= 100 && i < 1000) strcat(pty_infile, "0");
-			sprintf(tempnameid1, "%d", i);
-			strcat(pty_infile, tempnameid1);	// pty001
-			strcat(pty_infile, ".dat");	// pty001.dat
-			if (mpi_rank != 0)sprintf(pty_infile, "%d", mpi_rank);
+			if (i < 10 && i >= 0) strcat_s(pty_infile, "000");
+			else if (i >= 10 && i < 100) strcat_s(pty_infile, "00");
+			else if (i >= 100 && i < 1000) strcat_s(pty_infile, "0");
+			sprintf_s(tempnameid1, "%d", i);
+			strcat_s(pty_infile, tempnameid1);	// pty001
+			strcat_s(pty_infile, ".dat");	// pty001.dat
+			if (mpi_rank != 0)sprintf_s(pty_infile, "%d", mpi_rank);
 
 			outfile[i].open(pty_infile, ios::app);
 			outfile[i].setf(ios::scientific, ios::floatfield);
@@ -640,26 +643,26 @@ void airpore::UpdateInitialCond(int MF_count)
 
 void airpore::Save_restart(int index)
 {
-	char restartfile[200] = "/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground/myfile/ct", restart_temp[20];
-	char restartfile0[200] = "/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground/myfile/ct", restart_temp0[20];
+	char restartfile[200] = "myfile/ct", restart_temp[20];
+	char restartfile0[200] = "myfile/ct", restart_temp0[20];
 	char restart_pt0[20], restart_pt1[200];
 	int restart_nn,i,j;
 	restart_nn = index / restart_out;
 	if (restart_nn < 10) {
-		strcat(restartfile, "00"); 
-		strcat(restartfile0, "00");
+		strcat_s(restartfile, "00"); 
+		strcat_s(restartfile0, "00");
 	}
 	if ((restart_nn >= 10) && (restart_nn < 100)) { 
-		strcat(restartfile, "0");
-		strcat(restartfile0, "0"); 
+		strcat_s(restartfile, "0");
+		strcat_s(restartfile0, "0"); 
 	}
 	
 	int restart_ii, restart_id,restart_ii0;
-	restart_ii = sprintf(restart_temp, "%d", restart_nn); 
-	strcat(restartfile, restart_temp);	// ct003
-	restart_id = sprintf(restart_temp, "_%d", mpi_rank);
-	strcat(restartfile, restart_temp);	// ct003_2
-	strcat(restartfile, ".dat");		// ct003_2.dat
+	restart_ii = sprintf_s(restart_temp, "%d", restart_nn); 
+	strcat_s(restartfile, restart_temp);	// ct003
+	restart_id = sprintf_s(restart_temp, "_%d", mpi_rank);
+	strcat_s(restartfile, restart_temp);	// ct003_2
+	strcat_s(restartfile, ".dat");		// ct003_2.dat
 
 	ofstream re_outfile1(restartfile, ios::out | ios::binary);	
 	re_outfile1 << mpi_size << " " << mpi_rank << " " << index << endl;
@@ -668,10 +671,10 @@ void airpore::Save_restart(int index)
 	re_outfile1.close();
 
 	if (restart_nn > 1) {
-		restart_ii0 = sprintf(restart_temp0, "%d", restart_nn - 1);
-		strcat(restartfile0, restart_temp0);	// ct001
-		strcat(restartfile0, restart_temp);		// ct001_2
-		strcat(restartfile0, ".dat");			// ct001_2.dat
+		restart_ii0 = sprintf_s(restart_temp0, "%d", restart_nn - 1);
+		strcat_s(restartfile0, restart_temp0);	// ct001
+		strcat_s(restartfile0, restart_temp);		// ct001_2
+		strcat_s(restartfile0, ".dat");			// ct001_2.dat
 
 		ifstream re_inf(restartfile0, ios::in | ios::binary);
 		if (!re_inf && mpi_rank == 0){ cout << "Cannot open restart output file index - 1 !!!!! :(" << endl; }
@@ -688,43 +691,43 @@ void airpore::Save_restart(int index)
 		for (i = 1; i <= Rec_count; i++)
 		{
 			char pt_0[20] = "pty";
-			char pt_1[200] = "/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground/myfile/pty";
-			char pt_2[200] = "/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground/myfile/pty";
+			char pt_1[200] = "myfile/pty";
+			char pt_2[200] = "myfile/pty";
 
-			sprintf(restart_temp, "%d", i);	//
-			strcat(pt_0, restart_temp);		//pty1
-			strcat(pt_0, ".dat");			//pty1.dat
+			sprintf_s(restart_temp, "%d", i);	//
+			strcat_s(pt_0, restart_temp);		//pty1
+			strcat_s(pt_0, ".dat");			//pty1.dat
 
 
-			strcat(pt_1, restart_temp);
-			strcat(pt_2, restart_temp);
-			strcat(pt_1, "_ct");	//	.../pty1_ct
-			strcat(pt_2, "_ct");	//	.../pty1_ct
+			strcat_s(pt_1, restart_temp);
+			strcat_s(pt_2, restart_temp);
+			strcat_s(pt_1, "_ct");	//	.../pty1_ct
+			strcat_s(pt_2, "_ct");	//	.../pty1_ct
 
 			if (restart_nn < 10) {
-				strcat(pt_1, "00");
+				strcat_s(pt_1, "00");
 			}
 			if ((restart_nn >= 10) && (restart_nn < 100)) {
-				strcat(pt_1, "0");
+				strcat_s(pt_1, "0");
 			}
 
-			sprintf(restart_temp, "%d", restart_nn);
-			strcat(pt_1, restart_temp);	//.../pty1_ct003
-			strcat(pt_1, ".dat");		//.../pty1_ct003.dat
+			sprintf_s(restart_temp, "%d", restart_nn);
+			strcat_s(pt_1, restart_temp);	//.../pty1_ct003
+			strcat_s(pt_1, ".dat");		//.../pty1_ct003.dat
 
 			copyFile(pt_0, pt_1);
 
 			if (restart_nn > 2)
 			{
 				if (restart_nn - 2 < 10) {
-					strcat(pt_2, "00");
+					strcat_s(pt_2, "00");
 				}
 				if ((restart_nn - 2 >= 10) && (restart_nn < 100)) {
-					strcat(pt_2, "0");
+					strcat_s(pt_2, "0");
 				}
-				sprintf(restart_temp, "%d", restart_nn - 2);
-				strcat(pt_2, restart_temp);	//.../pty1_ct001
-				strcat(pt_2, ".dat");		//.../pty1_ct001.dat
+				sprintf_s(restart_temp, "%d", restart_nn - 2);
+				strcat_s(pt_2, restart_temp);	//.../pty1_ct001
+				strcat_s(pt_2, ".dat");		//.../pty1_ct001.dat
 
 				int ret;
 				ret = remove(pt_2);
@@ -781,11 +784,11 @@ int airpore::Read_restart()
 	char temp_string[20];
 	
 	*restart_infile1 = '\0';
-	strcat(restart_infile1,"/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground/myfile/");
-	strcat(restart_infile1, restart_infile);
-	sprintf(temp_string, "_%d", mpi_rank);
-	strcat(restart_infile1, temp_string);
-	strcat(restart_infile1, ".dat");
+	strcat_s(restart_infile1,"myfile/");
+	strcat_s(restart_infile1, restart_infile);
+	sprintf_s(temp_string, "_%d", mpi_rank);
+	strcat_s(restart_infile1, temp_string);
+	strcat_s(restart_infile1, ".dat");
 
 	cout << "input restart file name is " << restart_infile << ", restart_infile full location is " << restart_infile1 << endl;
 
@@ -816,16 +819,16 @@ int airpore::Read_restart()
 		for (i = 1; i <= Rec_count; i++)
 		{
 			char pt_0[20] = "pty";
-			char pt_1[200] = "/panfs/pfs.local/scratch/zczheng/j391z772/restart_backup/20180822_3D_ANSI_study/Rigid_ground/myfile/pty";
+			char pt_1[200] = "myfile/pty";
 
-			sprintf(temp_string, "%d", i);
-			strcat(pt_0, temp_string);
-			strcat(pt_0, ".dat");	// pt001.dat
+			sprintf_s(temp_string, "%d", i);
+			strcat_s(pt_0, temp_string);
+			strcat_s(pt_0, ".dat");	// pt001.dat
 
-			strcat(pt_1, temp_string);
-			strcat(pt_1, "_");
-			strcat(pt_1, restart_infile);	//	.../pty1_ct003
-			strcat(pt_1, ".dat");		//.../pty1_ct003.dat
+			strcat_s(pt_1, temp_string);
+			strcat_s(pt_1, "_");
+			strcat_s(pt_1, restart_infile);	//	.../pty1_ct003
+			strcat_s(pt_1, ".dat");		//.../pty1_ct003.dat
 
 			copyFile(pt_1, pt_0);
 			cout << pt_0 << " loaded!" << endl;
@@ -875,33 +878,46 @@ void airpore::SetMovingFrame(int MF_count)
 void airpore::MPI_Initialize()
 {
 	int *mpi_dim;
-	bool *mpi_periodic,mpi_reorder;
+	//bool *mpi_periodic,mpi_reorder;
 	mpi_dim=new int[3];
-	mpi_periodic=new bool[3];
+	//mpi_periodic=new bool[3];
 	mpi_var.mpi_coords=new int[3];
-	mpi_reorder=true;
+	//mpi_reorder=true;
+	int mpi_periodic[3];
+	mpi_periodic[0] = 0; mpi_periodic[1] = 0; mpi_periodic[2] = 0;
+	int mpi_reorder;
+	mpi_reorder = 1;
 	
 	mpi_dim[0]=mpi_var.mpi_xarea;
 	mpi_dim[1]=mpi_var.mpi_yarea;
 	mpi_dim[2]=mpi_var.mpi_zarea;
-	mpi_periodic[0]=false;
-	mpi_periodic[1]=false;
-	mpi_periodic[2]=false;
-	mpi_var.mpi_comm3d=MPI::COMM_WORLD.Create_cart(3,mpi_dim,mpi_periodic,mpi_reorder);
-	mpi_var.mpi_rank=mpi_rank=mpi_var.mpi_comm3d.Get_rank();
-	mpi_var.mpi_size=mpi_size;
-	mpi_var.mpi_comm3d.Shift(0,1,mpi_var.mpi_nback,mpi_var.mpi_nfront);
-	mpi_var.mpi_comm3d.Shift(1,1,mpi_var.mpi_nleft,mpi_var.mpi_nright);
-	mpi_var.mpi_comm3d.Shift(2,1,mpi_var.mpi_nbottom,mpi_var.mpi_ntop);
-	mpi_var.mpi_comm3d.Get_coords(mpi_var.mpi_rank,3,mpi_var.mpi_coords);
-	delete [] mpi_dim; delete[] mpi_periodic;
+	//mpi_periodic[0]=false;
+	//mpi_periodic[1]=false;
+	//mpi_periodic[2]=false;
+	//mpi_var.mpi_comm3d=MPI::COMM_WORLD.Create_cart(3,mpi_dim,mpi_periodic,mpi_reorder);
+
+	MPI_Cart_create(MPI_COMM_WORLD, 3, mpi_dim, mpi_periodic, mpi_reorder, &mpi_var.mpi_comm3d);
+
+	mpi_var.mpi_rank = mpi_rank;
+	//= mpi_var.mpi_comm3d.Get_rank();
+	mpi_var.mpi_size = mpi_size;
+	//mpi_var.mpi_comm3d.Shift(0,1,mpi_var.mpi_nback,mpi_var.mpi_nfront);
+	//mpi_var.mpi_comm3d.Shift(1,1,mpi_var.mpi_nleft,mpi_var.mpi_nright);
+	//mpi_var.mpi_comm3d.Shift(2,1,mpi_var.mpi_nbottom,mpi_var.mpi_ntop);
+
+	MPI_Cart_shift(mpi_var.mpi_comm3d, 0, 1, &mpi_var.mpi_nback, &mpi_var.mpi_nfront);
+	MPI_Cart_shift(mpi_var.mpi_comm3d, 1, 1, &mpi_var.mpi_nleft, &mpi_var.mpi_nright);
+	MPI_Cart_shift(mpi_var.mpi_comm3d, 2, 1, &mpi_var.mpi_nbottom, &mpi_var.mpi_ntop);
+	//mpi_var.mpi_comm3d.Get_coords(mpi_var.mpi_rank,3,mpi_var.mpi_coords);
+	MPI_Cart_coords(mpi_var.mpi_comm3d, mpi_var.mpi_rank, 3, mpi_var.mpi_coords);
+	delete [] mpi_dim; //delete[] mpi_periodic;
 }
 
 void airpore::SetInitialCond()
 {
 	int judge_porous,judge_source;
 	char filename[100];
-	strcpy(filename,"coordi_air");
+	strcpy_s(filename,"coordi_air");
 	judge_porous=0;
 	AirMedia= new air(scheme,AirStep,filename,move_frame,gauss_width,
 		velocity_coef,velocity_method,AirPara,PML_xbd,
@@ -913,7 +929,7 @@ void airpore::SetInitialCond()
 	switch(CaseNo){
 	case 1:
 		if(air_boundary.air_south==porous_media){
-			strcpy(filename,"coordi_pore");
+			strcpy_s(filename,"coordi_pore");
 			judge_porous=1;
 			south_pore=new porous(scheme,SouthStep,filename,move_frame,
 								gauss_width,PorePara,mpi_var,judge_porous);
@@ -939,13 +955,13 @@ void airpore::get_FFT_y1(int out_type)
 		char pty_file[100] = "./solution/pty";
 		char p_f_file[100] = "./solution/p_f2_";
 		char temp[100] = "";
-		if (j <10)	{sprintf(temp, "000%d", j);}
-		else if (j>=10 && j < 100) {sprintf(temp,"00%d",j);}
-		else if (j>=100 && j < 1000) {sprintf(temp,"0%d",j);}
-		else if (j > 1000) {sprintf(temp,"%d",j);}
+		if (j <10)	{sprintf_s(temp, "000%d", j);}
+		else if (j>=10 && j < 100) {sprintf_s(temp,"00%d",j);}
+		else if (j>=100 && j < 1000) {sprintf_s(temp,"0%d",j);}
+		else if (j > 1000) {sprintf_s(temp,"%d",j);}
 		
-		strcat(temp, ".dat");
-		strcat(pty_file, temp);
+		strcat_s(temp, ".dat");
+		strcat_s(pty_file, temp);
 		cout << "start to read " << pty_file << endl;
 		ifstream infile(pty_file, ios::in | ios::binary);
 		double *ppr, *pr, *pi;
@@ -962,7 +978,7 @@ void airpore::get_FFT_y1(int out_type)
 			infile.ignore(100, '\n');
 		}
 		infile.close();
-		strcat(p_f_file, temp);
+		strcat_s(p_f_file, temp);
 		cout << "start to write " << p_f_file << endl;
 		if (receiver.y != 0){
 			for (i = 0; i < time_domain; i++) { pr[i] = ppr[i]; pi[i] = 0; }
@@ -984,11 +1000,11 @@ void airpore::get_data_contour(int n)
 	char p_contour[200]="/panfs/pfs.local/work/zczheng/j391z772/Results/3D/20180822_3D_ANSI_study/Rigid_ground/pt",temp[20];
 	int nn;
 	nn=(n+1)/out_difft;
-	if(nn<10) strcat(p_contour,"00");
-	if((nn>=10)&&(nn<100)) strcat(p_contour,"0");
+	if(nn<10) strcat_s(p_contour,"00");
+	if((nn>=10)&&(nn<100)) strcat_s(p_contour,"0");
 	int ii;
-	ii=sprintf(temp,"%d",nn);
-	strcat(p_contour,temp);strcat(p_contour,".dat");
+	ii=sprintf_s(temp,"%d",nn);
+	strcat_s(p_contour,temp);strcat_s(p_contour,".dat");
 
 	//output
 	ofstream fp_p_t(p_contour,ios::out | ios::trunc | ios::binary);

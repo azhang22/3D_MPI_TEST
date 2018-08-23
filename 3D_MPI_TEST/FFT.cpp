@@ -1,6 +1,10 @@
 #include <math.h>
 #include <stdio.h>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
 #include "mygeneral.h"
+using namespace std;
 
 /*
    This computes an in-place complex-to-complex FFT 
@@ -77,34 +81,43 @@ void FFT(short int dir,long m,double x[],double y[])
 	return ;
 }
 
-void FFT_output(long m,double x[],double y[],char* filename,double diff_t)
+void FFT_output(long m, double x[], double y[], char *filename, double diff_t)
 {
 	Complex comp;
-	int n;
+	int n, jj;
 	/* Calculate the number of points */
-   n = 1;
-   for (int i=0;i<m;i++) 
-      n *= 2;
+	n = 1;
+	for (int i = 0; i<m; i++)
+		n *= 2;
 	//output to file
-   FILE *fp_p_f;
-	if((fp_p_f=fopen(filename,"w"))== NULL){
-		printf( "can't creat or write file\n" );
-		return;
-	}
+	ofstream fp_p_f(filename, ios::out | ios::trunc | ios::binary);
+	/*FILE *fp_p_f;
+	//if((fp_p_f=fopen(filename,"w"))== NULL){
+	if ((fopen_s(&fp_p_f, filename, "w")) == NULL) {
+	printf( "can't creat or write file\n" );
+	return;
+	}*/
 	//fprintf(fp_p_f,"ZONE I=%d,F=POINT \n",n/2);
-	comp=Complex(x[0],y[0]);
-	fprintf(fp_p_f,"%10.10e %10.10e \n",0.0,abs(comp),arg(comp));
-	for(int jj=1;jj<=(n/2-1);jj++){
-		comp=Complex(x[jj],y[jj]);
-		fprintf(fp_p_f,"%10.10e %10.10e \n",jj/diff_t/n,abs(comp),arg(comp));
+	comp = Complex(x[0], y[0]);
+	fp_p_f << setprecision(10) << "0.0 " << abs(comp) << endl;
+	//fprintf(fp_p_f, "%10.10e %10.10e \n", 0.0, abs(comp));
+	//fprintf(fp_p_f, "%10.10f %10.10f \n", 0.0, abs(comp), arg(comp));
+	for (jj = 1; jj <= (n / 2 - 1); jj++) {
+		comp = Complex(x[jj], y[jj]);
+		fp_p_f << setprecision(10) << (jj / diff_t / n) << " " << abs(comp) << endl;
+		//fprintf(fp_p_f, "%10.10e %10.10e \n", (jj / diff_t / n), abs(comp));
+		//fprintf(fp_p_f, "%10.10f %10.10f \n", jj / diff_t / n, abs(comp), arg(comp));
 	}
-	comp=Complex(x[n/2],y[n/2]);
-	fprintf(fp_p_f,"%10.10e %10.10e \n",1.0/2/diff_t,abs(comp),arg(comp));
+	comp = Complex(x[n / 2], y[n / 2]);
+	fp_p_f << setprecision(10) << (jj / diff_t / n) << " " << abs(comp) << endl;
+	//fprintf(fp_p_f, "%10.10e %10.10e \n", (jj / diff_t / n), abs(comp));
+	//fprintf(fp_p_f, "%10.10f %10.10f \n", jj / diff_t / n, abs(comp), arg(comp));
 	//fprintf(fp_p_f,"%10.10f %10.10f \n",-1.0/2/diff_t,sqrt(x[n/2]*x[n/2]+y[n/2]*y[n/2]));
 	//for(n=(FFT_N/2+1);n<=(FFT_N-1);n++){
 	//	fprintf(fp_p_f,"%10.10f %10.10f \n",(n-FFT_N)/diff_t_air/FFT_N,sqrt(pr[n]*pr[n]+pi[n]*pi[n]));
 	//}
-	fclose(fp_p_f);
+	//fclose(fp_p_f);
+	fp_p_f.close();
 }
 
 //interpolation of Aitken method

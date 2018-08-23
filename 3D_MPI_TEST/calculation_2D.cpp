@@ -41,9 +41,9 @@ calculation_2D::calculation_2D(scheme_list scheme1,DifferenceStep Step,char *coo
 	mpi_comm3d=mpi_var.mpi_comm3d;
 	for (i=0;i<3;i++)mpi_coords[i]=mpi_var.mpi_coords[i];
 
-	strcat(coordi1,coordi);
-	strcat(coordi1,"1");
-	strcat(coordi1,".dat");
+	strcat_s(coordi1,coordi);
+	strcat_s(coordi1,"1");
+	strcat_s(coordi1,".dat");
 	//read data from files
 	ifstream myfile1(coordi1,ios::in|ios::binary);
 	if(!myfile1){
@@ -149,9 +149,9 @@ calculation_2D::calculation_2D(scheme_list scheme1,DifferenceStep Step,char *coo
 	}
 	myfile1.close();
 
-	strcat(coordi2,coordi);
-	strcat(coordi2,"2");
-	strcat(coordi2,".dat");
+	strcat_s(coordi2,coordi);
+	strcat_s(coordi2,"2");
+	strcat_s(coordi2,".dat");
 	//read data from files
 	ifstream myfile2(coordi2,ios::in|ios::binary);
 	if(!myfile2){
@@ -168,9 +168,9 @@ calculation_2D::calculation_2D(scheme_list scheme1,DifferenceStep Step,char *coo
 	}
 	myfile2.close();
 
-	strcat(coordi3,coordi);
-	strcat(coordi3,"3");
-	strcat(coordi3,".dat");
+	strcat_s(coordi3,coordi);
+	strcat_s(coordi3,"3");
+	strcat_s(coordi3,".dat");
 	ifstream myfile3(coordi3,ios::in|ios::binary);
 	if(!myfile3){
 		cout<<"cannot open file:"<<coordi3<<" for read!!!"<<endl;
@@ -367,7 +367,8 @@ double calculation_2D::get_pressure(int ii,int jj,int kk,int N)
 			temp_pvalue=p_n[in][jn][kn];
 		}else temp_pvalue=0.0;
 	}else temp_pvalue=0.0;
-	mpi_comm3d.Allreduce(&temp_pvalue,&temp_pvalue1,1,MPI::DOUBLE,MPI::SUM);
+	//mpi_comm3d.Allreduce(&temp_pvalue,&temp_pvalue1,1,MPI_DOUBLE,MPI::SUM);
+	MPI_Allreduce(&temp_pvalue, &temp_pvalue1, 1, MPI_DOUBLE, MPI_SUM, mpi_comm3d);
 	return temp_pvalue1;
 }
 
@@ -415,14 +416,14 @@ void calculation_2D::SetMovingFrame(int N)
 				}
 			}
 		}
-		mpi_comm3d.Sendrecv(uws,NN,MPI::DOUBLE,mpi_nleft,0,
-							uer,NN,MPI::DOUBLE,mpi_nright,0,status);
-		mpi_comm3d.Sendrecv(vws,NN,MPI::DOUBLE,mpi_nleft,1,
-							ver,NN,MPI::DOUBLE,mpi_nright,1,status);
-		mpi_comm3d.Sendrecv(wws,NN,MPI::DOUBLE,mpi_nleft,2,
-							wer,NN,MPI::DOUBLE,mpi_nright,2,status);
-		mpi_comm3d.Sendrecv(pws,NN,MPI::DOUBLE,mpi_nleft,3,
-							per,NN,MPI::DOUBLE,mpi_nright,3,status);
+		MPI_Sendrecv(uws,NN,MPI_DOUBLE,mpi_nleft,0,
+							uer,NN,MPI_DOUBLE,mpi_nright,0,mpi_comm3d, &status);
+		MPI_Sendrecv(vws,NN,MPI_DOUBLE,mpi_nleft,1,
+							ver,NN,MPI_DOUBLE,mpi_nright,1,mpi_comm3d, &status);
+		MPI_Sendrecv(wws,NN,MPI_DOUBLE,mpi_nleft,2,
+							wer,NN,MPI_DOUBLE,mpi_nright,2,mpi_comm3d, &status);
+		MPI_Sendrecv(pws,NN,MPI_DOUBLE,mpi_nleft,3,
+							per,NN,MPI_DOUBLE,mpi_nright,3,mpi_comm3d, &status);
 	}
 	if (N==0) temp_J=0;
    	else temp_J=move_frame.JMAX-move_frame.lead_DJ;
@@ -585,28 +586,28 @@ void calculation_2D:: MPIexchange_pressure(){
 	int i,j,k;
 	for(i=0;i<mpi_IMAX;i++){
 		for(k=0;k<mpi_KMAX;k++){
-			mpi_comm3d.Sendrecv(&p_nn[i][1][k],1,MPI::DOUBLE,mpi_nleft,0,
-										&p_nn[i][mpi_JMAX-1][k],1,MPI::DOUBLE,mpi_nright,0,status);
-			mpi_comm3d.Sendrecv(&p_nn[i][mpi_JMAX-2][k],1,MPI::DOUBLE,mpi_nright,1,
-										&p_nn[i][0][k],1,MPI::DOUBLE,mpi_nleft,1,status);
+			MPI_Sendrecv(&p_nn[i][1][k],1,MPI_DOUBLE,mpi_nleft,0,
+										&p_nn[i][mpi_JMAX-1][k],1,MPI_DOUBLE,mpi_nright,0,mpi_comm3d, &status);
+			MPI_Sendrecv(&p_nn[i][mpi_JMAX-2][k],1,MPI_DOUBLE,mpi_nright,1,
+										&p_nn[i][0][k],1,MPI_DOUBLE,mpi_nleft,1,mpi_comm3d, &status);
 										
 		}
 	}
 	for(j=0;j<mpi_JMAX;j++){
 		for(k=0;k<mpi_KMAX;k++){
-			mpi_comm3d.Sendrecv(&p_nn[1][j][k],1,MPI::DOUBLE,mpi_nback,2,
-										&p_nn[mpi_IMAX-1][j][k],1,MPI::DOUBLE,mpi_nfront,2,status);
-			mpi_comm3d.Sendrecv(&p_nn[mpi_IMAX-2][j][k],1,MPI::DOUBLE,mpi_nfront,3,
-										&p_nn[0][j][k],1,MPI::DOUBLE,mpi_nback,3,status);
+			MPI_Sendrecv(&p_nn[1][j][k],1,MPI_DOUBLE,mpi_nback,2,
+										&p_nn[mpi_IMAX-1][j][k],1,MPI_DOUBLE,mpi_nfront,2,mpi_comm3d, &status);
+			MPI_Sendrecv(&p_nn[mpi_IMAX-2][j][k],1,MPI_DOUBLE,mpi_nfront,3,
+										&p_nn[0][j][k],1,MPI_DOUBLE,mpi_nback,3,mpi_comm3d, &status);
 		}
 	}
 	if (judge_porous1==0){
 		for(j=0;j<mpi_JMAX;j++){
 			for(i=0;i<mpi_IMAX;i++){
-				mpi_comm3d.Sendrecv(&p_nn[i][j][1],1,MPI::DOUBLE,mpi_nbottom,4,
-										&p_nn[i][j][mpi_KMAX-1],1,MPI::DOUBLE,mpi_ntop,4,status);
-				mpi_comm3d.Sendrecv(&p_nn[i][j][mpi_KMAX-2],1,MPI::DOUBLE,mpi_ntop,5,
-										&p_nn[i][j][0],1,MPI::DOUBLE,mpi_nbottom,5,status);
+				MPI_Sendrecv(&p_nn[i][j][1],1,MPI_DOUBLE,mpi_nbottom,4,
+										&p_nn[i][j][mpi_KMAX-1],1,MPI_DOUBLE,mpi_ntop,4,mpi_comm3d, &status);
+				MPI_Sendrecv(&p_nn[i][j][mpi_KMAX-2],1,MPI_DOUBLE,mpi_ntop,5,
+										&p_nn[i][j][0],1,MPI_DOUBLE,mpi_nbottom,5,mpi_comm3d, &status);
 			}
 		}
 	}
@@ -691,51 +692,51 @@ void calculation_2D:: MPIexchange_velocity()
 	int i,j,k;
 	for(i=0;i<mpi_IMAX;i++){
 		for(k=0;k<mpi_KMAX;k++){
-			mpi_comm3d.Sendrecv(&u_nn[i][1][k],1,MPI::DOUBLE,mpi_nleft,0,
-										&u_nn[i][mpi_JMAX-1][k],1,MPI::DOUBLE,mpi_nright,0,status);
-			mpi_comm3d.Sendrecv(&u_nn[i][mpi_JMAX-2][k],1,MPI::DOUBLE,mpi_nright,1,
-										&u_nn[i][0][k],1,MPI::DOUBLE,mpi_nleft,1,status);
-			mpi_comm3d.Sendrecv(&v_nn[i][1][k],1,MPI::DOUBLE,mpi_nleft,2,
-										&v_nn[i][mpi_JMAX-1][k],1,MPI::DOUBLE,mpi_nright,2,status);
-			mpi_comm3d.Sendrecv(&v_nn[i][mpi_JMAX-2][k],1,MPI::DOUBLE,mpi_nright,3,
-										&v_nn[i][0][k],1,MPI::DOUBLE,mpi_nleft,3,status);
-			mpi_comm3d.Sendrecv(&w_nn[i][1][k],1,MPI::DOUBLE,mpi_nleft,4,
-										&w_nn[i][mpi_JMAX-1][k],1,MPI::DOUBLE,mpi_nright,4,status);
-			mpi_comm3d.Sendrecv(&w_nn[i][mpi_JMAX-2][k],1,MPI::DOUBLE,mpi_nright,5,
-										&w_nn[i][0][k],1,MPI::DOUBLE,mpi_nleft,5,status);
+			MPI_Sendrecv(&u_nn[i][1][k],1,MPI_DOUBLE,mpi_nleft,0,
+										&u_nn[i][mpi_JMAX-1][k],1,MPI_DOUBLE,mpi_nright,0,mpi_comm3d, &status);
+			MPI_Sendrecv(&u_nn[i][mpi_JMAX-2][k],1,MPI_DOUBLE,mpi_nright,1,
+										&u_nn[i][0][k],1,MPI_DOUBLE,mpi_nleft,1,mpi_comm3d, &status);
+			MPI_Sendrecv(&v_nn[i][1][k],1,MPI_DOUBLE,mpi_nleft,2,
+										&v_nn[i][mpi_JMAX-1][k],1,MPI_DOUBLE,mpi_nright,2,mpi_comm3d, &status);
+			MPI_Sendrecv(&v_nn[i][mpi_JMAX-2][k],1,MPI_DOUBLE,mpi_nright,3,
+										&v_nn[i][0][k],1,MPI_DOUBLE,mpi_nleft,3,mpi_comm3d, &status);
+			MPI_Sendrecv(&w_nn[i][1][k],1,MPI_DOUBLE,mpi_nleft,4,
+										&w_nn[i][mpi_JMAX-1][k],1,MPI_DOUBLE,mpi_nright,4,mpi_comm3d, &status);
+			MPI_Sendrecv(&w_nn[i][mpi_JMAX-2][k],1,MPI_DOUBLE,mpi_nright,5,
+										&w_nn[i][0][k],1,MPI_DOUBLE,mpi_nleft,5,mpi_comm3d, &status);
 		}
 	}
 	for(j=0;j<mpi_JMAX;j++){
 		for(k=0;k<mpi_KMAX;k++){
-			mpi_comm3d.Sendrecv(&u_nn[1][j][k],1,MPI::DOUBLE,mpi_nback,6,
-										&u_nn[mpi_IMAX-1][j][k],1,MPI::DOUBLE,mpi_nfront,6,status);
-			mpi_comm3d.Sendrecv(&u_nn[mpi_IMAX-2][j][k],1,MPI::DOUBLE,mpi_nfront,7,
-										&u_nn[0][j][k],1,MPI::DOUBLE,mpi_nback,7,status);
-			mpi_comm3d.Sendrecv(&v_nn[1][j][k],1,MPI::DOUBLE,mpi_nback,8,
-										&v_nn[mpi_IMAX-1][j][k],1,MPI::DOUBLE,mpi_nfront,8,status);
-			mpi_comm3d.Sendrecv(&v_nn[mpi_IMAX-2][j][k],1,MPI::DOUBLE,mpi_nfront,9,
-										&v_nn[0][j][k],1,MPI::DOUBLE,mpi_nback,9,status);
-			mpi_comm3d.Sendrecv(&w_nn[1][j][k],1,MPI::DOUBLE,mpi_nback,10,
-										&w_nn[mpi_IMAX-1][j][k],1,MPI::DOUBLE,mpi_nfront,10,status);
-			mpi_comm3d.Sendrecv(&w_nn[mpi_IMAX-2][j][k],1,MPI::DOUBLE,mpi_nfront,11,
-										&w_nn[0][j][k],1,MPI::DOUBLE,mpi_nback,11,status);
+			MPI_Sendrecv(&u_nn[1][j][k],1,MPI_DOUBLE,mpi_nback,6,
+										&u_nn[mpi_IMAX-1][j][k],1,MPI_DOUBLE,mpi_nfront,6,mpi_comm3d, &status);
+			MPI_Sendrecv(&u_nn[mpi_IMAX-2][j][k],1,MPI_DOUBLE,mpi_nfront,7,
+										&u_nn[0][j][k],1,MPI_DOUBLE,mpi_nback,7,mpi_comm3d, &status);
+			MPI_Sendrecv(&v_nn[1][j][k],1,MPI_DOUBLE,mpi_nback,8,
+										&v_nn[mpi_IMAX-1][j][k],1,MPI_DOUBLE,mpi_nfront,8,mpi_comm3d, &status);
+			MPI_Sendrecv(&v_nn[mpi_IMAX-2][j][k],1,MPI_DOUBLE,mpi_nfront,9,
+										&v_nn[0][j][k],1,MPI_DOUBLE,mpi_nback,9,mpi_comm3d, &status);
+			MPI_Sendrecv(&w_nn[1][j][k],1,MPI_DOUBLE,mpi_nback,10,
+										&w_nn[mpi_IMAX-1][j][k],1,MPI_DOUBLE,mpi_nfront,10,mpi_comm3d, &status);
+			MPI_Sendrecv(&w_nn[mpi_IMAX-2][j][k],1,MPI_DOUBLE,mpi_nfront,11,
+										&w_nn[0][j][k],1,MPI_DOUBLE,mpi_nback,11,mpi_comm3d, &status);
 		}
 	}
 	if (judge_porous1==0){
 		for(j=0;j<mpi_JMAX;j++){
 			for(i=0;i<mpi_IMAX;i++){
-				mpi_comm3d.Sendrecv(&u_nn[i][j][1],1,MPI::DOUBLE,mpi_nbottom,12,
-										&u_nn[i][j][mpi_KMAX-1],1,MPI::DOUBLE,mpi_ntop,12,status);
-				mpi_comm3d.Sendrecv(&u_nn[i][j][mpi_KMAX-2],1,MPI::DOUBLE,mpi_ntop,13,
-										&u_nn[i][j][0],1,MPI::DOUBLE,mpi_nbottom,13,status);
-				mpi_comm3d.Sendrecv(&v_nn[i][j][1],1,MPI::DOUBLE,mpi_nbottom,14,
-										&v_nn[i][j][mpi_KMAX-1],1,MPI::DOUBLE,mpi_ntop,14,status);
-				mpi_comm3d.Sendrecv(&v_nn[i][j][mpi_KMAX-2],1,MPI::DOUBLE,mpi_ntop,15,
-										&v_nn[i][j][0],1,MPI::DOUBLE,mpi_nbottom,15,status);
-				mpi_comm3d.Sendrecv(&w_nn[i][j][1],1,MPI::DOUBLE,mpi_nbottom,16,
-										&w_nn[i][j][mpi_KMAX-1],1,MPI::DOUBLE,mpi_ntop,16,status);
-				mpi_comm3d.Sendrecv(&w_nn[i][j][mpi_KMAX-2],1,MPI::DOUBLE,mpi_ntop,17,
-										&w_nn[i][j][0],1,MPI::DOUBLE,mpi_nbottom,17,status);
+				MPI_Sendrecv(&u_nn[i][j][1],1,MPI_DOUBLE,mpi_nbottom,12,
+										&u_nn[i][j][mpi_KMAX-1],1,MPI_DOUBLE,mpi_ntop,12,mpi_comm3d, &status);
+				MPI_Sendrecv(&u_nn[i][j][mpi_KMAX-2],1,MPI_DOUBLE,mpi_ntop,13,
+										&u_nn[i][j][0],1,MPI_DOUBLE,mpi_nbottom,13,mpi_comm3d, &status);
+				MPI_Sendrecv(&v_nn[i][j][1],1,MPI_DOUBLE,mpi_nbottom,14,
+										&v_nn[i][j][mpi_KMAX-1],1,MPI_DOUBLE,mpi_ntop,14,mpi_comm3d, &status);
+				MPI_Sendrecv(&v_nn[i][j][mpi_KMAX-2],1,MPI_DOUBLE,mpi_ntop,15,
+										&v_nn[i][j][0],1,MPI_DOUBLE,mpi_nbottom,15,mpi_comm3d, &status);
+				MPI_Sendrecv(&w_nn[i][j][1],1,MPI_DOUBLE,mpi_nbottom,16,
+										&w_nn[i][j][mpi_KMAX-1],1,MPI_DOUBLE,mpi_ntop,16,mpi_comm3d, &status);
+				MPI_Sendrecv(&w_nn[i][j][mpi_KMAX-2],1,MPI_DOUBLE,mpi_ntop,17,
+										&w_nn[i][j][0],1,MPI_DOUBLE,mpi_nbottom,17,mpi_comm3d, &status);
 			}
 		}
 	}
@@ -1026,7 +1027,7 @@ void calculation_2D::mpi_send_data(int N)
 			}
 		}
 	}
-	mpi_comm3d.Reduce(p_in,p_out,IMAX_out*JMAX_out*KMAX_out,MPI::DOUBLE,MPI::SUM,0);
+	MPI_Reduce(p_in,p_out,IMAX_out*JMAX_out*KMAX_out,MPI_DOUBLE,MPI_SUM,0,mpi_comm3d);
 
 	/*
 	for(i=0;i<IMAX;i++ ){
@@ -1054,7 +1055,7 @@ void calculation_2D::mpi_send_data(int N)
 			}
 		}
 	}
-	mpi_comm3d.Reduce(p_in,p_out,IMAX_out*JMAX_out*KMAX_out,MPI::DOUBLE,MPI::SUM,0);
+	mpi_comm3d.Reduce(p_in,p_out,IMAX_out*JMAX_out*KMAX_out,MPI_DOUBLE,MPI::SUM,0);
 	*/
 	/*
 	for (i=0;i<IMAX_out;i++){
@@ -1079,7 +1080,7 @@ void calculation_2D::mpi_send_data(int N)
 						if (kk%out_n==0||kk==KMAX-1){
 							if (kk!=KMAX-1)kn=kk/out_n;
 							else kn=KMAX_out-1;
-							mpi_comm3d.Reduce(&p_nn[i][j][k],&p_out[in][jn][kn],1,MPI::DOUBLE,MPI::SUM,0);
+							mpi_comm3d.Reduce(&p_nn[i][j][k],&p_out[in][jn][kn],1,MPI_DOUBLE,MPI::SUM,0);
 						}
 					}
 				}

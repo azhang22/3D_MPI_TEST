@@ -60,8 +60,10 @@ class calculation_2D
 		int mpi_nleft,mpi_nright,mpi_nbottom,mpi_ntop,mpi_nfront,mpi_nback;
 		int mpi_i1,mpi_i2,mpi_j1,mpi_j2,mpi_k1,mpi_k2;
 		int mpi_IMAX,mpi_IMAX1,mpi_IMAX2,mpi_JMAX,mpi_JMAX1,mpi_JMAX2,mpi_KMAX,mpi_KMAX1,mpi_KMAX2;
-		MPI::Cartcomm mpi_comm3d;
-		MPI::Status status;
+		//MPI::Cartcomm mpi_comm3d;
+		//MPI::Status status;
+		MPI_Comm mpi_comm3d;
+		MPI_Status status;
 		// save the data of sub domain at the boundary for moving frame
 		double *uer,*uws,*ver,*vws,*wer,*wws,*per,*pws;
 		double *ps;
