@@ -1,0 +1,24 @@
+#!/bin/bash
+#MSUB -N 3D_Rgd
+#MSUB -q sixhour
+#MSUB -l nodes=4:ppn=24:ib,pmem=4gb,walltime=6:00:00
+#MSUB -M j391z772@ku.edu
+#MSUB -m abe
+#MSUB -j oe
+#MSUB -e ${PBS_JOBID}-${PBS_JOBNAME}.err
+#MSUB -o ${PBS_JOBID}-${PBS_JOBNAME}.out
+
+# Save job specific information for troubleshooting
+echo "Job ID is ${PBS_JOBID}"
+echo "Running on host $(hostname)"
+echo "Working directory is ${PBS_O_WORKDIR}"
+echo "The following processors are allocated to this job:"
+echo $(cat $PBS_NODEFILE)
+
+
+# Run the program
+echo "Start: $(date +%F_%T)"
+cd ${PBS_O_WORKDIR}
+
+mpirun ./Air >${PBS_O_WORKDIR}/${PBS_JOBID}-${PBS_JOBNAME}.log
+echo "Stop: $(date +%F_%T)"
