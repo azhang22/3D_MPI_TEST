@@ -1,8 +1,8 @@
 	0.135955598689175//gaussian_width//0.263276884773416
 	201 11 11 0 0.750 //Moving domain:MF_JMAX; Moving distance: MF_J;Moving ratio
 	2 //scheme:1.FB_v_p 2.FB_p_v 3.FB_vp 4.LeapTrap 5.RK4 6.RK2 7.ABM ;
-	2 1 1 2 2 2 //NorthBC SouthBC EastBC WestBC FrontBC BackBC and
-			//B.C type: 1.rigid 2.absorbing layer 3.porous media 4.radiation boundary condition;  
+	2 1 5 2 2 2 //NorthBC SouthBC EastBC WestBC FrontBC BackBC and
+			//B.C type: 1.rigid 2.absorbing layer 3.porous media 4.radiation boundary condition 5. TDBC;  
 	1600 100 19 300 //time_domain;out_difft(output each this value);FFT_m(2^FFT_m=N);frequency;
 
 	3.0 4 //b(Vav=b*z);

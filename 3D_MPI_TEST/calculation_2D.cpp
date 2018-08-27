@@ -121,6 +121,22 @@ calculation_2D::calculation_2D(scheme_list scheme1,DifferenceStep Step,char *coo
 			w_nn[i][j]=new double [mpi_KMAX];p_nn[i][j]=new double [mpi_KMAX];
 		}
 	}
+
+	TDBC_judge = 2;
+	switch (TDBC_judge) {
+	case 2:
+		Psi = new double **[mpi_IMAX];
+		for (i = 0; i < mpi_IMAX; i++) {
+			Psi[i] = new double *[mpi_KMAX];
+			for (k = 0; k < mpi_KMAX; k++) {
+				Psi[i][k] = new double[Ns];
+			}
+		}
+		break;
+	default:
+		cout << "TDBC in location " << TDBC_judge << " is under development!" << endl;
+	}
+
 	if(move_frame.Judge==1){
 		N=move_frame.lead_DJ*mpi_IMAX*mpi_KMAX;
 		uer=new double [N];
@@ -221,7 +237,7 @@ calculation_2D::calculation_2D(scheme_list scheme1,DifferenceStep Step,char *coo
 
 calculation_2D::~calculation_2D()
 {
-	int i,j;
+	int i,j,k;
 	for(i=0;i<mpi_IMAX;i++){
 		for(j=0;j<mpi_JMAX;j++){
 			delete[] p_n[i][j];delete[] w_n[i][j];delete[] v_n[i][j];delete[] u_n[i][j];
@@ -237,6 +253,20 @@ calculation_2D::~calculation_2D()
 	delete[] X;delete[] Y;delete[] Z;delete[] Jacobian;
 	delete[] X_over_x;delete[] Y_over_y;delete[] Z_over_z;
 	delete[] axisbound_X;delete[] axisbound_Y;delete[] axisbound_Z;
+	switch (TDBC_judge) {
+	case 2:
+		for (i = 0; i < mpi_IMAX; i++) {
+			for (k = 0; k < mpi_KMAX; k++) {
+				delete[] Psi[i][k];
+			}
+			delete[] Psi[i];
+		}
+		delete[] Psi;
+		break;
+	default:
+		cout << "TDBC in location " << TDBC_judge << " is under development!" << endl;
+
+	}
 	/*
 	for (i=0;i<IMAX_out;i++){
 		for (j=0;j<JMAX_out;j++){
@@ -633,7 +663,9 @@ void calculation_2D::UpdateBC_pressure(boundary_location BC)
 			if (mpi_coords[1]==mpi_yarea-1){
 				for (i=0;i<mpi_IMAX;i++){
 					for(k=0;k<mpi_KMAX;k++){
-						p_nn[i][mpi_JMAX-1][k]=p_nn[i][mpi_JMAX-2][k];//right
+						//p_nn[i][mpi_JMAX-1][k]=p_nn[i][mpi_JMAX-2][k];//right
+						int jn = mpi_JMAX - 1;
+						p_nn[i][jn][k] = 15.0 / 8.0 * p_nn[i][jn - 1][k] - 5.0 / 4.0 * p_nn[i][jn - 2][k] + 3.0 / 8.0 * p_nn[i][jn - 3][k];
 					}
 				}
 			}
@@ -951,6 +983,50 @@ void calculation_2D::UpdateBC_pressure(boundary_location BC,calculation_2D& poro
 		cout<<"it is wrong to entrance boundary when UpdateBC_pressure, BC = " << BC <<endl;
 	}
 }
+void calculation_2D::UpdateBC_velocity(boundary_location BC, double Z, double tau)
+{
+	int i, j, k;
+
+	switch (BC) {
+	case EastBC:
+	{// right
+		if (mpi_coords[1] == mpi_yarea - 1) {
+			for (i = 0; i<mpi_IMAX; i++) {
+				for (k = 0; k<mpi_KMAX; k++) {
+					u_nn[i][mpi_JMAX - 1][k] = u_nn[i][mpi_JMAX - 2][k];
+					v_nn[i][mpi_JMAX - 1][k] = 0.0;
+					w_nn[i][mpi_JMAX - 1][k] = w_nn[i][mpi_JMAX - 2][k];
+					
+					v_nn[i][mpi_JMAX - 1][k] = Cal_TDBC(Psi[i][k], p_nn[i][mpi_JMAX - 1][k], Z, diff_t / tau);
+					Update_Psi(Psi[i][k], v_nn[i][mpi_JMAX - 1][k], diff_t / tau);
+
+				}
+			}
+		}
+	}
+	break;
+	default:
+		cout << "TDBC over location " << BC << " is under development!" << endl;
+	}
+}
+void calculation_2D::Update_Psi(double * Psi, double w, double dt)
+{
+	for (int k = 0; k < Ns; k++) {
+		Psi[k] = exp(-1 * r[k] * dt) * Psi[k] + a[k] * w * dt;
+	}
+}
+
+double calculation_2D::Cal_TDBC(double * Psi, double p, double Z, double dt)
+{
+	double temp_at = 0;
+	double temp_psi = 0;
+	for (int k = 0; k < Ns; k++) {
+		temp_at += a[k] * dt;
+		temp_psi += exp(-1 * r[k] * dt) * Psi[k];
+	}
+	return 1.0 / (1 + temp_at) * (p / Z - temp_psi);
+}
+
 void calculation_2D::mpi_send_data(int N)
 {
 	int i,j,k,i1,i2,j1,j2,k1,k2;

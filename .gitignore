@@ -259,3 +259,14 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/3D_MPI_TEST/solution/pty0004.dat
+/3D_MPI_TEST/solution/pty0003.dat
+/3D_MPI_TEST/solution/pty0002.dat
+/3D_MPI_TEST/solution/pty0001.dat
+/3D_MPI_TEST/solution/pty0000.dat
+/3D_MPI_TEST/solution/pt005.dat
+/3D_MPI_TEST/solution/pt004.dat
+/3D_MPI_TEST/solution/pt003.dat
+/3D_MPI_TEST/solution/pt002.dat
+/3D_MPI_TEST/solution/pt001.dat
+/3D_MPI_TEST/solution

@@ -143,6 +143,16 @@ airpore::airpore(char *input_file)
 			}
 		}
 		break;
+		case 5:// TDBC
+		{
+			switch (i) {
+			case 2:
+				air_boundary.air_east = TDBC; break;
+			default:
+				cout << "TDBC over location " << i << " is under development!" << endl;
+			}		
+		}
+		break;
 		default:
 			cout<<"please entrance your choice again!";
 		}
@@ -239,6 +249,9 @@ airpore::airpore(char *input_file)
 	infile>>PorePara.q>>PorePara.porosity>>PorePara.resistivity;infile.ignore(100,'\n');
 	PorePara.eff_density=PorePara.q*PorePara.q/PorePara.porosity/AirPara.Aav;
 	PorePara.Kp=1.0/AirPara.adiabatic_coef/AirPara.Pav;
+	double rho = AirPara.adiabatic_coef * AirPara.Pav / 340.29 / 340.29;
+	PorePara.Z_inf = rho * 340.29 * PorePara.q / PorePara.porosity;
+	PorePara.tau = AirPara.adiabatic_coef * rho * PorePara.q * PorePara.q / PorePara.resistivity / PorePara.porosity;
 
 	//source and receiver
 	infile>>source.x>>source.y>>source.z>>receiver.x>>receiver.y>>receiver.z;infile.ignore(100,'\n');
@@ -316,7 +329,12 @@ void airpore::Cal_velocity()
 	case 1:
 		{
 			AirMedia->UpdateBC_velocity(NorthBC);
-			AirMedia->UpdateBC_velocity(EastBC);
+			if (air_boundary.air_east == TDBC) {
+				AirMedia->UpdateBC_velocity(EastBC, PorePara.Z_inf, PorePara.tau);
+			}
+			else {
+				AirMedia->UpdateBC_velocity(EastBC);
+			}
 			AirMedia->UpdateBC_velocity(WestBC);
 			AirMedia->UpdateBC_velocity(FrontBC);
 			AirMedia->UpdateBC_velocity(BackBC);
@@ -353,8 +371,10 @@ void airpore::Cal_pressure()
 	case 1:
 		{
 			AirMedia->UpdateBC_pressure(NorthBC);
-			AirMedia->UpdateBC_pressure(EastBC);AirMedia->UpdateBC_pressure(WestBC);
-			AirMedia->UpdateBC_pressure(FrontBC);AirMedia->UpdateBC_pressure(BackBC);
+			AirMedia->UpdateBC_pressure(EastBC);
+			AirMedia->UpdateBC_pressure(WestBC);
+			AirMedia->UpdateBC_pressure(FrontBC);
+			AirMedia->UpdateBC_pressure(BackBC);
 			if(air_boundary.air_south==rigid || air_boundary.air_south==absorbing){
 				AirMedia->UpdateBC_pressure(SouthBC);
 			}else{

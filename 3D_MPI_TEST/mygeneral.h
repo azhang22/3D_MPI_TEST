@@ -34,6 +34,8 @@ struct PoreStruct{
 	double resistivity;
 	double Kp;//m.s2/kg
 	double q;
+	double Z_inf;
+	double tau;
 };
 struct DifferenceStep{
 	double diff_t;//second
@@ -45,7 +47,7 @@ struct DifferenceStep{
 //enum medium_list {AirMedium,PoreMedium,Coupling,WestMedium,NorthMedium,SouthMedium,
 //EastMedium,WSMedium,WNMedium};//coupling is the interface between air and porous
 enum scheme_list {FB_p_v,FB_v_p,FB_vp,LeapTrap,ABM,RK4,RK2};
-enum boundary_type{rigid,absorbing,porous_media,radiation};
+enum boundary_type{rigid,absorbing,porous_media,radiation,TDBC};
 enum boundary_location{NorthBC,SouthBC,WestBC,EastBC,FrontBC,BackBC};
 
 struct boundary{

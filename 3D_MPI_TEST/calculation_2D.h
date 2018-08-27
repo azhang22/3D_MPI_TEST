@@ -67,6 +67,13 @@ class calculation_2D
 		// save the data of sub domain at the boundary for moving frame
 		double *uer,*uws,*ver,*vws,*wer,*wws,*per,*pws;
 		double *ps;
+		//TDBC:
+		int TDBC_judge;
+		double ***Psi;
+		int Ns = 6;
+		double a[6] = { 8.226223820e-01, 3.732304064e-01, 9.106232372e-02, 4.819445335e-02, 4.225250937e-01, 1.837970986e-01 };
+		double r[6] = { 8.681310138e-01, 1.953722814e-01, 1.108067950e-02, 2.566498621e-03, 1.457297589e-04, 4.648583789e-02 };
+
 
 	public:
 		calculation_2D();
@@ -106,7 +113,11 @@ class calculation_2D
 		void UpdateBC_pressure(boundary_location BC);
 		void UpdateBC_velocity(boundary_location BC);
 		void UpdateBC_velocity(boundary_location BC,calculation_2D& porous);
-		void UpdateBC_pressure(boundary_location BC,calculation_2D& porous);
+		void UpdateBC_pressure(boundary_location BC, calculation_2D& porous);
+		void UpdateBC_velocity(boundary_location BC, double Z, double tau);
+		void Update_Psi(double *Psi, double p, double t_bar);
+
+		double Cal_TDBC(double *Psi, double p, double Z, double t_bar);
 
 		virtual void cal_fuvw(double ***temp_u,double ***temp_v,double ***temp_w,
 			double ***temp_p){};
